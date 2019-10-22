@@ -44,7 +44,7 @@ router.post('/login', function(req, res, next) {
         return res.send(err);
       }
 
-      console.log("login successfull!!!");
+      console.log('login successfull!!!');
       const token = jwt.sign(user.toJSON(), 'your_jwt_secret');
       return res.json({ token });
     });
