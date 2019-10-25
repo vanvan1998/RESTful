@@ -10,10 +10,10 @@ const UserModel = require('./models/user.model');
 
 
 
-passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
-    User.findOne({ email: email.toLowerCase() }, (err, user) => {
+passport.use(new LocalStrategy({ usernameField: 'username' }, (username, password, done) => {
+    User.findOne({ username: username.toLowerCase() }, (err, user) => {
         if (!user) {
-            return done(null, false, { msg: `Email ${email} not found.` });
+            return done(null, false, { msg: `Username ${username} not found.` });
         }
         bcrypt.compare(password, user.password, function (err, isMatch) {
             console.log(isMatch);
@@ -21,7 +21,7 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, don
             if (isMatch) {
                 return done(null, user);
             }
-            return done(null, false, { msg: 'Invalid email or password.' });
+            return done(null, false, { msg: 'Invalid username or password.' });
           });
     });
 }));
