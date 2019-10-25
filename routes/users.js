@@ -7,8 +7,6 @@ const UserModel = require('../models/user.model');
 const passport = require('../passport');
 
 router.post('/register', async function(req, res, next) {
-  console.log(req.body);
-  console.log(req.body.password);
   const hash = await bcrypt.hash(req.body.password, 10).catch(reason => {
     return res.status(500).json(reason);
   });
@@ -46,8 +44,7 @@ router.post('/login', function(req, res, next) {
 
       console.log('login successfull!!!');
       const token = jwt.sign(user.toJSON(), 'your_jwt_secret');
-      console.log(user.name);
-      return res.json({user, token});
+      return res.json({ user, token });
     });
   })(req, res);
 });
