@@ -49,4 +49,33 @@ router.post('/login', function(req, res, next) {
   })(req, res);
 });
 
+router.post('/updateUser', async function(req, res, next) {
+  var name = req.body.name;
+  var email = req.body.email;
+  var dateOfBirth = req.body.dateOfBirth;
+  var sex = req.body.sex;
+  const hash = await bcrypt.hash(req.body.password, 10).catch(reason => {
+    return res.status(500).json(reason);
+  });
+  var UpdateUser = {
+    $set: {
+      name: name,
+      email: email,
+      dateOfBirth: dateOfBirth,
+      sex: sex,
+      password: hash
+    }
+  };
+  var id = { _id: req.body.id };
+  await UserModel.updateOne(id, UpdateUser, function(err, res) {
+    if (err) {
+      console.log(err);
+      return res.send(err);
+    }
+    console.log('1 document updated');
+  });
+  const success = 'success';
+  return res.json({ success });
+});
+
 module.exports = router;
