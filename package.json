@@ -1,29 +1,34 @@
 {
-  "name": "restful",
-  "version": "0.0.0",
-  "private": true,
+  "name": "caro-online-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "nodemon ./src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "engines": {
-    "node": "10.3.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dangthanhtuan1997/caro-online-server.git"
   },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dangthanhtuan1997/caro-online-server/issues"
+  },
+  "homepage": "https://github.com/dangthanhtuan1997/caro-online-server#readme",
   "dependencies": {
     "bcrypt": "^3.0.6",
-    "cookie-parser": "~1.4.4",
-    "cors": "^2.8.5",
-    "debug": "~2.6.9",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
     "dotenv": "^8.2.0",
-    "ejs": "~2.6.1",
-    "express": "~4.16.1",
-    "express-cache-controller": "^1.1.0",
-    "http-errors": "~1.6.3",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.7.5",
-    "morgan": "~1.9.1",
+    "express": "^4.17.1",
+    "mongoose": "^5.7.7",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
-    "passport-local": "^1.0.0",
-    "passport-local-mongoose": "^5.0.1"
+    "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
   }
 }
