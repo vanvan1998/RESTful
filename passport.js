@@ -51,7 +51,6 @@ passport.use(
 
       if (user !== null) {
         const tmp = user.toObject();
-        delete tmp._id;
 
         return callback(null, tmp);
       } else {
