@@ -23,6 +23,7 @@ router.post('/register', async function(req, res, next) {
         delete ret['password'];
         return ret;
       }
+      
     })
   );
   return;
