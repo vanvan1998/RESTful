@@ -7,16 +7,8 @@ const passportJWT = require('passport-jwt');
 const JwtStrategy = require('passport-jwt').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 
-var cookieExtractor = function (req) {
-	let token = req.headers['cookie']; // Express headers are auto converted to lowercase
-	if (token){
-		token = token.slice(4, token.length);
-	}
-	return token;
-};
-
 var jwtOptions = {};
-jwtOptions.jwtFromRequest = cookieExtractor;
+jwtOptions.jwtFromRequest = passportJWT.ExtractJwt.fromAuthHeaderAsBearerToken();
 jwtOptions.secretOrKey = config.jwtSecret;
 
 passport.use(new LocalStrategy((username, password, done) => {

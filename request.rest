@@ -1,0 +1,41 @@
+POST http://localhost:3000/api/login
+Content-Type: application/json
+
+{
+    "username" : "nguyensivan",
+    "password" : "123456"
+}
+
+###
+POST http://localhost:3000/api/register
+Content-Type: application/json
+
+{
+    "username" : "nguyensivan",
+    "name": "Nguyễn Sĩ Văn",
+    "email": "nguyensivan1998@gmail.com",
+    "dateOfBirth": "11/04/1998",
+    "sex": "nu",
+    "password" : "123456",
+    "confirmPassword": "123456"
+}
+
+###
+POST http://localhost:3000/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZGI2NjJhMGQ1YzBmODIyNzQwNDQzMjEiLCJ1c2VybmFtZSI6Im5ndXllbnNpdmFuIiwibmFtZSI6Ik5ndXnhu4VuIFPEqSBWxINuIiwiZW1haWwiOiJuZ3V5ZW5zaXZhbjE5OThAZ21haWwuY29tIiwiZGF0ZU9mQmlydGgiOiIxMS8wNC8xOTk4Iiwic2V4IjoibnUiLCJjcmVhdGVkQXQiOiIyMDE5LTEwLTI4VDAzOjM4OjA4LjI2NloiLCJ1cGRhdGVkQXQiOiIyMDE5LTEwLTI4VDAzOjM4OjA4LjI2NloiLCJfX3YiOjAsImlhdCI6MTU3MjIzMzk2OCwiZXhwIjoxNTcyODM4NzY4fQ.42LBYSjy_l4IKkGALRsYARpbLbjkEb03RVElFuDD9O8
+
+###
+POST http://localhost:3000/api/users/update
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZGI2NjJhMGQ1YzBmODIyNzQwNDQzMjEiLCJ1c2VybmFtZSI6Im5ndXllbnNpdmFuIiwibmFtZSI6Ik5ndXnhu4VuIFPEqSBWxINuIiwiZW1haWwiOiJuZ3V5ZW5zaXZhbjE5OThAZ21haWwuY29tIiwiZGF0ZU9mQmlydGgiOiIxMS8wNC8xOTk4Iiwic2V4IjoibnUiLCJjcmVhdGVkQXQiOiIyMDE5LTEwLTI4VDAzOjM4OjA4LjI2NloiLCJ1cGRhdGVkQXQiOiIyMDE5LTEwLTI4VDAzOjM4OjA4LjI2NloiLCJfX3YiOjAsImlhdCI6MTU3MjIzMzk2OCwiZXhwIjoxNTcyODM4NzY4fQ.42LBYSjy_l4IKkGALRsYARpbLbjkEb03RVElFuDD9O8
+
+{
+    "_id" : "5db662a0d5c0f82274044321",
+    "username" : "nguyensivan",
+    "name": "Nguyễn Sĩ Văn",
+    "email": "nguyensivan1998@gmail.com",
+    "dateOfBirth": "11/04/1997",
+    "sex": "nu",
+    "newPassword" : "123456",
+    "confirmNewPassword": "123456"
+}

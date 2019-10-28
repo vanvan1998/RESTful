@@ -44,8 +44,7 @@ module.exports = (app) => {
                 }
                 const userModified = user.toObject();
                 delete userModified.password;
-                const token = jwt.sign(userModified, config.jwtSecret);
-                res.cookie('jwt', token, { expires: new Date(Date.now() + 900000), httpOnly: true });
+                const token = jwt.sign(userModified, config.jwtSecret, {expiresIn: '7d'});
                 return res.json({ userModified, token });
             });
         })(req, res);
