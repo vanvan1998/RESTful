@@ -10,10 +10,10 @@ module.exports = app => {
   app.use(router);
 
   router.post('/register', (req, res) => {
-    if (req.body.newPassword == '') {
+    if (req.body.password == '') {
       return res.status(401).json({ message: 'password is empty' });
     }
-    if (req.body.newPassword.length < 6) {
+    if (req.body.password.length < 6) {
       return res
         .status(401)
         .json({ message: 'Passwords must be at least 6 characters' });
