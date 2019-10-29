@@ -10,6 +10,7 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT||config.port;
 
+app.use('/uploads',express.static('uploads'));
 app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: true }));
