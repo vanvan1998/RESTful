@@ -27,8 +27,8 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({
   storage: storage,
-    limits: { fieldSize: 1024 * 1024 * 5 },
-    fileFilter:fileFilter
+  limits: { fieldSize: 1024 * 1024 * 5 },
+  fileFilter: fileFilter
 });
 
 module.exports = app => {
@@ -42,51 +42,57 @@ module.exports = app => {
     }
   );
 
-  router.post('/update',passport.authenticate('jwt', { session: false }), (req, res) => {
-    if (req.body.newPassword =='') {
-        return res
-          .status(401)
-          .json({ message: 'password is empty' });
+  router.post(
+    '/update',
+    passport.authenticate('jwt', { session: false }),
+    (req, res) => {
+      if (req.body.newPassword == '') {
+        return res.status(401).json({ message: 'password is empty' });
       }
       if (req.body.newPassword != req.body.confirmNewPassword) {
-      return res
-        .status(401)
-        .json({ message: 'New password and confirm password is not match' });
-    }
-    bcrypt.hash(req.body.newPassword, config.saltRounds, (err, hash) => {
-      var UpdateUser = {
-        $set: {
-          name: req.body.name,
-          email: req.body.email,
-          dateOfBirth: req.body.dateOfBirth,
-          sex: req.body.sex,
-          password: hash
-        }
-      };
-      User.findByIdAndUpdate({ _id: req.body._id }, UpdateUser, (err, user) => {
-        if (err) {
-          return res.status(500).json(err);
-        }
-        res
-          .status(200)
-          .json({ message: 'Update user: ' + user.username + ' success' });
+        return res
+          .status(401)
+          .json({ message: 'New password and confirm password is not match' });
+      }
+      bcrypt.hash(req.body.newPassword, config.saltRounds, (err, hash) => {
+        var UpdateUser = {
+          $set: {
+            name: req.body.name,
+            email: req.body.email,
+            dateOfBirth: req.body.dateOfBirth,
+            sex: req.body.sex,
+            password: hash
+          }
+        };
+        User.findByIdAndUpdate(
+          { _id: req.body._id },
+          UpdateUser,
+          (err, user) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            res
+              .status(200)
+              .json({ message: 'Update user: ' + user.username + ' success' });
+          }
+        );
       });
-    });
-  });
+    }
+  );
 
   router.post('/uploadImage', upload.single('userImage'), (req, res) => {
-      var UpdateUser = {
-        $set: {
-            userImage: req.file.path
-        }
-      };
-      User.findByIdAndUpdate({ _id: req.body._id }, UpdateUser, (err, user) => {
-        if (err) {
-            return res.status(500).json({ message: 'Upload failed, please try again' });
-        }
-        res
-          .status(200)
-          .json({ message: 'Upload image success' });
-      });
+    var UpdateUser = {
+      $set: {
+        userImage: req.file.path
+      }
+    };
+    User.findByIdAndUpdate({ _id: req.body._id }, UpdateUser, (err, user) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: 'Upload failed, please try again' });
+      }
+      res.status(200).json({ message: 'Upload image success' });
+    });
   });
 };
