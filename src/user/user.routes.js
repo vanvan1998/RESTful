@@ -86,9 +86,10 @@ module.exports = app => {
   );
 
   router.post('/uploadImage', upload.single('userImage'), (req, res) => {
+    console.log(req.file);
     var UpdateUser = {
       $set: {
-        userImage: req.file.path
+        userImage: '/uploads/' + req.file.filename
       }
     };
     User.findByIdAndUpdate({ _id: req.body._id }, UpdateUser, (err, user) => {
