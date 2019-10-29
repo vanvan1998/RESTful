@@ -49,6 +49,11 @@ module.exports = app => {
       if (req.body.newPassword == '') {
         return res.status(401).json({ message: 'password is empty' });
       }
+      if (req.body.newPassword.length < 6) {
+        return res
+          .status(401)
+          .json({ message: 'Passwords must be at least 6 characters' });
+      }
       if (req.body.newPassword != req.body.confirmNewPassword) {
         return res
           .status(401)
