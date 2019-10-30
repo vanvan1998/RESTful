@@ -11,6 +11,7 @@ const app = express();
 const PORT = process.env.PORT || config.port;
 
 app.use('/uploads', express.static('uploads'));
+
 app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,10 +23,15 @@ app.use(config.api.prefix, routes());
 app.use(cookieParser());
 
 app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'YOUR-DOMAIN.TLD');
-  res.header(
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET,HEAD,OPTIONS,POST,PUT'
+  );
+  res.setHeader(
     'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
+    'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'
   );
   next();
 });
@@ -47,6 +53,10 @@ mongoose
   });
 
 app.use(passport.initialize());
+
+app.use('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
 app.listen(PORT, err => {
   if (err) {

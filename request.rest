@@ -1,4 +1,4 @@
-POST http://localhost:3000/api/login
+POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3000/api/register
+POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
@@ -21,8 +21,8 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3000/api/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZGI2NjJhMGQ1YzBmODIyNzQwNDQzMjEiLCJ1c2VybmFtZSI6Im5ndXllbnNpdmFuIiwibmFtZSI6Ik5ndXnhu4VuIFPEqSBWxINuIiwiZW1haWwiOiJuZ3V5ZW5zaXZhbjE5OThAZ21haWwuY29tIiwiZGF0ZU9mQmlydGgiOiIxMS8wNC8xOTk4Iiwic2V4IjoibnUiLCJjcmVhdGVkQXQiOiIyMDE5LTEwLTI4VDAzOjM4OjA4LjI2NloiLCJ1cGRhdGVkQXQiOiIyMDE5LTEwLTI4VDAzOjM4OjA4LjI2NloiLCJfX3YiOjAsImlhdCI6MTU3MjIzMzk2OCwiZXhwIjoxNTcyODM4NzY4fQ.42LBYSjy_l4IKkGALRsYARpbLbjkEb03RVElFuDD9O8
+GET http://localhost:3000/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsIl9pZCI6IjVkYjkzNTg2YTRlOGFhM2M4MGVhNjVhYyIsInVzZXJuYW1lIjoibmd1eWVuc2l2YW4iLCJuYW1lIjoibmd1eeG7hW4gc8SpIHbEg24iLCJlbWFpbCI6Im5ndXllbnNpdmFuMTk5OEBnbWFpbC5jb20iLCJkYXRlT2ZCaXJ0aCI6IjExLzA0LzE5OTgiLCJzZXgiOiJudSIsImNyZWF0ZWRBdCI6IjIwMTktMTAtMzBUMDc6MDI6MzAuODI3WiIsInVwZGF0ZWRBdCI6IjIwMTktMTAtMzBUMDc6MTA6NDguMTE3WiIsIl9fdiI6MCwidXNlckltYWdlIjoiL3VwbG9hZHMvYXZhdGFyXzVkYjkzNTg2YTRlOGFhM2M4MGVhNjVhYyIsImlhdCI6MTU3MjQyMDA0OSwiZXhwIjoxNTczMDI0ODQ5fQ.kCegRSdkXmJ16tEBDugbySqoF-ItTNIM0X11hTbfYj4
 
 ###
 POST http://localhost:3000/api/users/update

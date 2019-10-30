@@ -7,11 +7,32 @@ const User = require('../user/user.model');
 const config = require('../config/config');
 
 module.exports = app => {
-  app.use(router);
+  app.use('/auth', router);
+
+  router.get(
+    '/facebook',
+    passport.authenticate('facebook', { session: false })
+  );
+
+  router.get('/facebook/callback', (req, res) => {
+    passport.authenticate(
+      'facebook',
+      {
+          session: false,
+          failureRedirect: 'http://localhost:3001/',
+      },
+      (err, user, info) => {
+        if (err || !user) {
+            res.redirect('http://localhost:3001/');
+        }
+        res.status(200).json(user);
+      }
+    )(req, res);
+  });
 
   router.post('/register', (req, res) => {
     if (req.body.password == '') {
-      return res.status(401).json({ message: 'password is empty' });
+      return res.status(401).json({ message: 'Password is empty' });
     }
     if (req.body.password.length < 6) {
       return res

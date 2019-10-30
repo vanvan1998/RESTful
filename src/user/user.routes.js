@@ -6,13 +6,14 @@ const passport = require('../config/passport.config');
 const User = require('../user/user.model');
 const config = require('../config/config');
 const multer = require('multer');
+const path = require('path');
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, './uploads/');
   },
   filename: function(req, file, cb) {
-    cb(null, new Date().getTime() + file.originalname);
+    cb(null, 'avatar_' + req.body._id + path.extname(file.originalname));
   }
 });
 
@@ -47,7 +48,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     (req, res) => {
       if (req.body.newPassword == '') {
-        return res.status(401).json({ message: 'password is empty' });
+        return res.status(401).json({ message: 'Password is empty' });
       }
       if (req.body.newPassword.length < 6) {
         return res
@@ -85,20 +86,27 @@ module.exports = app => {
     }
   );
 
-  router.post('/uploadImage', upload.single('userImage'), (req, res) => {
-    console.log(req.file);
-    var UpdateUser = {
-      $set: {
-        userImage: '/uploads/' + req.file.filename
-      }
-    };
-    User.findByIdAndUpdate({ _id: req.body._id }, UpdateUser, (err, user) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ message: 'Upload failed, please try again' });
-      }
-      res.status(200).json({ message: 'Upload image success' });
-    });
-  });
+  router.post(
+    '/uploadImage',
+    passport.authenticate('jwt', { session: false }),
+    upload.single('userImage'),
+    (req, res) => {
+      var UpdateUser = {
+        $set: {
+          userImage:
+            '/uploads/avatar_' +
+            req.body._id +
+            path.extname(req.file.originalname)
+        }
+      };
+      User.findByIdAndUpdate({ _id: req.body._id }, UpdateUser, (err, user) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: 'Upload failed, please try again' });
+        }
+        res.status(200).json({ message: 'Upload image success' });
+      });
+    }
+  );
 };
