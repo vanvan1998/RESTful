@@ -5,29 +5,48 @@ const jwt = require('jsonwebtoken');
 const passport = require('../config/passport.config');
 const User = require('../user/user.model');
 const config = require('../config/config');
+const fetch = require('node-fetch');
 
 module.exports = app => {
   app.use('/auth', router);
 
-  router.get(
-    '/facebook',
-    passport.authenticate('facebook', { session: false })
-  );
+  router.post('/login-with-facebook', async (req, res) => {
+    const { accessToken, userID } = req.body;
 
-  router.get('/facebook/callback', (req, res) => {
-    passport.authenticate(
-      'facebook',
-      {
-          session: false,
-          failureRedirect: 'http://localhost:3001/',
-      },
-      (err, user, info) => {
-        if (err || !user) {
-            res.redirect('http://localhost:3001/');
-        }
-        res.status(200).json(user);
+    const response = await fetch(
+      `https://graph.facebook.com/v5.0/me?access_token=${accessToken}&fields=name%2C%20email&method=get&pretty=0&sdk=joey&suppress_http_code=1`
+    );
+    const json = await response.json();
+
+    if (json.id === userID) {
+      existUser = await User.findOne({ facebookId: userID });
+      if (existUser) {
+        const userModified = existUser.toObject();
+        delete userModified.password;
+        const token = jwt.sign(userModified, config.jwtSecret, {
+          expiresIn: '7d'
+        });
+          return res.status(200).json({ userModified, token });
       }
-    )(req, res);
+      const newUser = new User({
+        name: json.name,
+        facebookId: json.id,
+        email: json.email
+      });
+        newUser.save((err, user) => {
+            if (err) {
+                return res.status(500).json(err);
+            }
+            const userModified = user.toObject();
+            delete userModified.password;
+            const token = jwt.sign(userModified, config.jwtSecret, {
+                expiresIn: '7d'
+            });
+            return res.status(201).json({ userModified, token });
+      });
+    } else {
+      res.status(403).json({ message: 'Fake information' });
+    }
   });
 
   router.post('/register', (req, res) => {

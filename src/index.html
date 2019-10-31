@@ -1,18 +1,35 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+    <script>
+        const url = 'http://localhost:3000';
+        function loginWithFacebook() {
+            FB.login(response => {
+                const { authResponse: { accessToken, userID } } = response;
+                fetch(`${url}/api/auth/login-with-facebook`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ accessToken, userID })
+                })
+            }, { scope: 'public_profile, email' });
+            return false;
+        }
+    </script>
+</head>
+
 <body>
+    <a id="loginbtn" onclick="javascript:loginWithFacebook()">Login with facebook</a>
     <script>
         window.fbAsyncInit = function () {
             FB.init({
                 appId: '627664211100376',
-                cookie: true,
                 xfbml: true,
-                version: 'v4.0'
+                version: 'v5.0'
             });
-
             FB.AppEvents.logPageView();
-
         };
 
         (function (d, s, id) {
@@ -23,13 +40,9 @@
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
     </script>
-    <div id="fb-root"></div>
-    <script async defer crossorigin="anonymous"
-        src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v4.0&appId=627664211100376&autoLogAppEvents=1"></script>
-    <div class="fb-login-button" data-width="" data-size="large" data-button-type="continue_with"
-        data-auto-logout-link="false" data-use-continue-as="true"></div>
-    </div>
-    <a href="/api/auth/facebook">Login with Facebook</a>
+    <script>
+        document.getElementById('loginbtn').addEventListener('click', loginWithFacebook, false);
+    </script>
 </body>
 
 </html>
