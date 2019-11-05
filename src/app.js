@@ -2,13 +2,16 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const config = require('./config/config');
 const routes = require('./api');
-const passport = require('./config/passport.config');
+const passport = require('./passport/passport');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const { sendMessages } = require('./game/chat/chat');
+const { init, createNewRoom, joinRandomRoom } = require('./game/room/room');
+const { updateBoard, setPlayerStayIsWinner,sendDrawRequestToCompetitor,  endTheGameWithoutWinner, setCompetitor } = require('./game/game');
 
+const PORT = process.env.PORT || config.port;
 const app = express();
-const PORT = process.env.PORT||config.port;
 
 app.use('/uploads', express.static('uploads'));
 
@@ -22,13 +25,16 @@ app.use(config.api.prefix, routes());
 
 app.use(cookieParser());
 
+app.use(passport.initialize());
+
 app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "YOUR-DOMAIN.TLD");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 
-// Connecting to the database
 mongoose.connect(config.databaseURL, {
     useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true
 }).then(() => {
@@ -38,13 +44,7 @@ mongoose.connect(config.databaseURL, {
     process.exit();
 });
 
-app.use(passport.initialize());
-
-app.use('/', (req, res)=>{
-    res.sendFile(__dirname + '/index.html');
-})
-
-app.listen(PORT, err => {
+const server = app.listen(PORT, err => {
     if (err) {
         console.log(err);
         process.exit(1);
@@ -52,3 +52,32 @@ app.listen(PORT, err => {
     }
     console.log('App running at port: ' + PORT);
 });
+
+const io = require('socket.io').listen(server);
+
+io.on('connection', socket => {
+    
+    socket.emit('server-request-client-init-info');
+
+    socket.on('client-send-init-info', data => init(socket, data));
+
+    socket.on('client-send-message', data => sendMessages(io, socket, data));
+
+    socket.on('client-create-new-room', () => createNewRoom(io, socket));
+
+    socket.on('client-play-now', () => joinRandomRoom(io, socket));
+
+    socket.on('client-send-move', data => updateBoard(io, socket, data));
+
+    socket.on('client-leave-room', () => socket.leaveAll());
+
+    socket.on('client-answer-draw-game', data => endTheGameWithoutWinner(io, socket, data));
+
+    socket.on('client-ask-draw-game', () => sendDrawRequestToCompetitor(io, socket));
+
+    socket.on('client-surrender', () => sendDrawRequestToCompetitor(io, socket));
+    
+    socket.on('client-exit-game', () => setPlayerStayIsWinner(io, socket));
+
+    socket.on('disconnect', () => setPlayerStayIsWinner(io, socket));
+})

@@ -1,12 +1,14 @@
 const express = require('express');
 const user = require('../user/user.routes');
 const auth = require('../auth/auth.routes');
+const upload = require('../upload/upload.routes');
 
 module.exports = () => {
-    const route = express.Router();
+    const router = express.Router();
 
-    user(route);
-    auth(route);
-
-	return route;
+    user(router);
+    auth(router);
+    upload(router);
+    
+	return router;
 }
