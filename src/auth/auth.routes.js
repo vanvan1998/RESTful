@@ -6,6 +6,10 @@ const passport = require('../passport/passport');
 const User = require('../user/user.model');
 const config = require('../config/config');
 const fetch = require('node-fetch');
+const querystring = require('querystring');
+
+const clientId = '515923430857-91lh880df1vo0ssqvk91ooup3dpsg5or.apps.googleusercontent.com'
+const clientSecret = 'dFzYFYV8uxW4PwzdLJN4LjZG'
 
 module.exports = (app) => {
     app.use('/auth', router);
@@ -21,7 +25,7 @@ module.exports = (app) => {
             if (existUser) {
                 const userModified = existUser.toObject();
                 const token = jwt.sign(userModified, config.jwtSecret, { expiresIn: '7d' });
-                return res.status(200).json({userModified, token});
+                return res.status(200).json({ userModified, token });
             }
             const newUser = new User({
                 name: json.name,
@@ -32,12 +36,85 @@ module.exports = (app) => {
                 if (err) { return res.status(500).json(err) }
                 const userModified = user.toObject();
                 const token = jwt.sign(userModified, config.jwtSecret, { expiresIn: '7d' });
-                return res.status(201).json({userModified, token});
+                return res.status(201).json({ userModified, token });
             });
         } else {
             res.status(403).json({ message: 'Fake information' });
         }
-    })
+    });
+
+    router.get('/login-with-google', async (req, res) => {
+        const tokenResponse = await fetch(
+            `https://www.googleapis.com/oauth2/v4/token`,
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    code: req.query.code,
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    redirect_uri: 'http://localhost:3000/api/auth/login-with-google',
+                    grant_type: 'authorization_code'
+                })
+            }
+        )
+        const tokenJson = await tokenResponse.json();
+        const userInfo = await getUserInfo(tokenJson.access_token);
+
+        if (userInfo) {
+            existUser = await User.findOne({ googleId: userInfo.id });
+            if (existUser) {
+                const userModified = existUser.toObject();
+                const token = jwt.sign(userModified, config.jwtSecret, { expiresIn: '7d' });
+                //return res.status(200).json({ userModified, token });
+
+                const query = querystring.stringify({
+                    "name": userModified.name,
+                    "googleId": userModified.googleId,
+                    "email": userModified.email,
+                    "userImage": userModified.userImage,
+                    "token": token
+                });
+                //return res.redirect(`http://localhost:3000?${Object.keys(userInfo).map(key => `${key}=${encodeURIComponent(userInfo[key])}`).join('&')}`)
+
+                return res.redirect('http://localhost:3000?' + query);
+            }
+            const newUser = new User({
+                name: userInfo.name,
+                googleId: userInfo.id,
+                email: userInfo.email,
+                userImage: userInfo.picture
+            });
+            newUser.save((err, user) => {
+                if (err) { return res.status(500).json(err) }
+                const userModified = user.toObject();
+                const token = jwt.sign(userModified, config.jwtSecret, { expiresIn: '7d' });
+                //return res.status(201).json({ userModified, token });
+
+                const query = querystring.stringify({
+                    "a": 1,
+                    "b": 2,
+                    "valid": "your string here"
+                });
+                return res.redirect('http://localhost:3000?' + query);
+
+                //res.redirect(`http://localhost:3000?${Object.keys(user).map(key => `${key}=${encodeURIComponent(user[key])}`).join('&')}`)
+            });
+        }
+
+    });
+
+    async function getUserInfo(accessToken) {
+        const response = await fetch(
+            `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }
+        )
+        const json = await response.json();
+        return json;
+    }
 
     router.post('/register', (req, res) => {
         if (req.body.password == '') {

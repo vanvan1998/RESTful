@@ -2,21 +2,21 @@ const Room = require('./room.model');
 const User = require('../../user/user.model');
 const { startGame } = require('../game');
 
-const init = (socket, data) => {
-    User.findById(data.userId, (err, user) => {
+const init = (socket, info) => {
+    User.findById(info.userId, (err, user) => {
         if (err) {
             return;
         }
 
-        socket.socketUserId = data.userId;
-        socket.socketUserName = data.name;
+        socket.socketUserId = info.userId;
+        socket.socketUserName = info.name;
         socket.socketUserImage = user.userImage;
 
         socket.leaveAll();
 
         socket.emit('server-init-success');
     });
-    console.log(data.name + ' connected.');
+    console.log(info.name + ' connected.');
 }
 
 const createNewRoom = async (io, socket) => {

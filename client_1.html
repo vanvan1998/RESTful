@@ -61,7 +61,9 @@
     <button id="new-room">New room</button>
     <button id="play-now">Play now</button>
     <button id="send-move">Send move</button>
-    <button id="draw-game">Draw game</button>
+    <button id="draw-game">Xin hòa</button>
+    <button id="surrender">Đầu hàng</button>
+    
     <div id="new-notification">
         <span id="notification"></span>
         <button id="yes">Yes</button>
@@ -78,12 +80,11 @@
             var socket = io('http://localhost:3000');
             var _id = '5db93586a4e8aa3c80ea65ac';
             var name = 'Nguyễn Sĩ Văn';
-            var newMessage = {
-                message: "Văn's message"
-            }
+            var newMessage = "Văn's message";
 
             $('#send-move').prop("disabled", true);
             $('#draw-game').prop("disabled", true);
+            $('#surrender').prop("disabled", true);
             $('#new-notification').hide();
 
             $('form').submit(function () {
@@ -120,6 +121,11 @@
                 return false;
             });
 
+            $('#surrender').click(function () {
+                socket.emit('client-surrender');
+                return false;
+            });
+
             $('#yes').click(function () {
                 $('#new-notification').hide(200);
                 socket.emit('client-answer-draw-game', 'yes');
@@ -132,12 +138,12 @@
                 return false;
             });
 
-            socket.on('server-send-room', function (msg) {
+            socket.on('server-send-room', function (room) {
                 $('#current-room').html('');
-                $('#current-room').append($('<span>').text('Current room: ' + msg));
+                $('#current-room').append($('<span>').text('Current room: ' + room));
             });
             socket.on('server-send-new-message', function (msg) {
-                $('#messages').append($('<li>').text(msg));
+                $('#messages').append($('<li>').text(msg.message));
                 window.scrollTo(0, document.body.scrollHeight);
             });
             socket.on('server-request-client-init-info', function () {
@@ -150,6 +156,7 @@
 
             socket.on('server-init-game', function () {
                 $('#draw-game').prop("disabled", false);
+                $('#surrender').prop("disabled", false);
                 // Chuyển sang giao diện chơi game
             });
 
@@ -162,13 +169,8 @@
 
             socket.on('competitor-want-a-draw-game', function (data) {
                 $('#notification').html('');
-                $('#notification').append($('<span>').text(data + ' want a draw game?'));
+                $('#notification').append($('<span>').text('competior want a draw game?'));
                 $('#new-notification').show();
-            });
-
-            socket.on('competitor-exit-you-are-winner', function () {
-                $('#messages').append($('<li>').text('Competitor exit. You won!'));
-                window.scrollTo(0, document.body.scrollHeight);
             });
         });
     </script>

@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const { sendMessages } = require('./game/chat/chat');
 const { init, createNewRoom, joinRandomRoom } = require('./game/room/room');
-const { updateBoard, setPlayerStayIsWinner,sendDrawRequestToCompetitor,  endTheGameWithoutWinner, setCompetitor } = require('./game/game');
+const { updateBoard,sendDrawRequestToCompetitor,  endTheGameWithoutWinner, setCompetitorIsWinner } = require('./game/game');
 
 const PORT = process.env.PORT || config.port;
 const app = express();
@@ -53,31 +53,37 @@ const server = app.listen(PORT, err => {
     console.log('App running at port: ' + PORT);
 });
 
+app.use('/', (req, res) =>{
+    res.sendFile(__dirname + '/index.html')
+})
+
 const io = require('socket.io').listen(server);
 
 io.on('connection', socket => {
     
     socket.emit('server-request-client-init-info');
 
-    socket.on('client-send-init-info', data => init(socket, data));
+    socket.on('client-send-init-info', info => init(socket, info));
 
-    socket.on('client-send-message', data => sendMessages(io, socket, data));
+    socket.on('client-send-message', message => sendMessages(io, socket, message));
 
     socket.on('client-create-new-room', () => createNewRoom(io, socket));
 
     socket.on('client-play-now', () => joinRandomRoom(io, socket));
 
-    socket.on('client-send-move', data => updateBoard(io, socket, data));
+    socket.on('client-send-move', move => updateBoard(io, socket, move));
 
     socket.on('client-leave-room', () => socket.leaveAll());
 
-    socket.on('client-answer-draw-game', data => endTheGameWithoutWinner(io, socket, data));
+    socket.on('client-answer-draw-game', answer => endTheGameWithoutWinner(io, socket, answer));
 
     socket.on('client-ask-draw-game', () => sendDrawRequestToCompetitor(io, socket));
 
-    socket.on('client-surrender', () => sendDrawRequestToCompetitor(io, socket));
+    socket.on('client-surrender', () => setCompetitorIsWinner(io, socket, 'surrender'));
     
-    socket.on('client-exit-game', () => setPlayerStayIsWinner(io, socket));
+    socket.on('client-exit-game', () => setCompetitorIsWinner(io, socket, 'exit'));
 
-    socket.on('disconnect', () => setPlayerStayIsWinner(io, socket));
+    socket.on('client-lose-game', () => setCompetitorIsWinner(io, socket, 'lose'));
+
+    socket.on('disconnect', () => setCompetitorIsWinner(io, socket, 'disconnect'));
 })

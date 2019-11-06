@@ -24,13 +24,17 @@ const startGame = async (io, socket) => {
             socket.in(socket.socketRoomName).broadcast.emit('server-enable-your-turn');
         }
         else {
-            socket.emit('server-enable-your-turn');
+            socket.emit('server-enable-your-turn', {});
         }
     }
 }
 
-const sendNextTurnToCompetitor = (io, socket) => {
-    socket.in(socket.socketRoomName).broadcast.emit('server-enable-your-turn');
+const sendNextTurnToCompetitor = (io, socket, data) => {
+    if (!socket.adapter.rooms[socket.socketRoomName]) {
+        return;
+    }
+    
+    socket.in(socket.socketRoomName).broadcast.emit('server-enable-your-turn', data);
 }
 
 const updateBoard = (io, socket, data) => {
@@ -46,56 +50,58 @@ const updateBoard = (io, socket, data) => {
         } else {
             socket.adapter.rooms[socket.socketRoomName].currentBoard[data.x][data.y] = 'O';
         }
-        sendNextTurnToCompetitor(io, socket);
-        io.sockets.in(socket.socketRoomName).emit('server-send-new-message', socket.socketUserName + ' đánh: ' + data.x + ';' + data.y);
+        sendNextTurnToCompetitor(io, socket, data);
     }
-    else{
+    else {
         socket.emit('do-not-cheat-this-game');
     }
 }
 
-const setPlayerStayIsWinner = async (io, socket) => {
-    console.log(socket.socketUserName + ' disconnect.');
-
+const setCompetitorIsWinner = async (io, socket, info) => {
+    if (!socket.adapter.rooms[socket.socketRoomName]) {
+        return;
+    }
     // If player has join a room
     if (socket.socketRoomName) {
 
-        var playerExit = socket.socketUserId;
+        var playerLose = socket.socketUserId;
         var roomId = socket.socketRoomId;
         var room = await Room.findById(roomId);
 
         if (room) {
-            room.winner = playerExit == room.player_1 ? room.player_2 : room.player_1;
+            room.winner = playerLose == room.player_1 ? room.player_2 : room.player_1;
             room.status = 'end';
             room.save();
         }
+        
 
-        socket.in(socket.socketRoomName).broadcast.emit('competitor-exit-you-are-winner');
+        if (info === 'exit') {
+            socket.in(socket.socketRoomName).broadcast.emit('server-send-new-message', {message: 'Your competitor exit game. Your are winner!', owner: 'server' });
+        }
+        else if (info === 'surrender') {
+            socket.in(socket.socketRoomName).broadcast.emit('server-send-new-message', {message: 'Your competitor surrender. Your are winner!', owner: 'server' });
+        }
+        else if (info === 'disconnect') {
+            socket.in(socket.socketRoomName).broadcast.emit('server-send-new-message', {message: 'Your competitor disconnect. Your are winner!', owner: 'server' });
+        }
+        else if (info === 'lose') {
+            socket.in(socket.socketRoomName).broadcast.emit('server-send-new-message', {message: 'Your won!', owner: 'server' });
+        }
+
+        io.sockets.in(socket.socketRoomName).emit('server-send-new-message', {message: 'This game was end.', owner: 'server' });
+
+        io.sockets.in(socket.socketRoomName).emit('the-game-was-end');
+        
         clearRoom(io, socket.socketRoomName);
     }
 }
 
-const setCompetitor = async (io, socket) => {
-    // If player has join a room
-    if (socket.socketRoomName) {
-
-        var playerSurrender = socket.socketUserId;
-        var roomId = socket.socketRoomId;
-        var room = await Room.findById(roomId);
-
-        if (room) {
-            room.winner = playerSurrender == room.player_1 ? room.player_2 : room.player_1;
-            room.status = 'end';
-            room.save();
-        }
-
-        socket.in(socket.socketRoomName).broadcast.emit('competitor-surrender-you-are-winner');
-        clearRoom(io, socket.socketRoomName);
+const endTheGameWithoutWinner = async (io, socket, answer) => {
+    if (!socket.adapter.rooms[socket.socketRoomName]) {
+        return;
     }
-}
 
-const endTheGameWithoutWinner = async (io, socket, data) => {
-    if (data === 'yes') {
+    if (answer === 'yes') {
         var room = await Room.findById(socket.socketRoomId);
 
         if (room) {
@@ -103,14 +109,23 @@ const endTheGameWithoutWinner = async (io, socket, data) => {
             room.save();
         }
 
-        io.sockets.in(socket.socketRoomName).emit('server-send-new-message', 'This game was end without winner');
+        io.sockets.in(socket.socketRoomName).emit('server-send-new-message', {message: 'This game was end without winner.', owner: 'server' });
+        io.sockets.in(socket.socketRoomName).emit('the-game-was-end');
 
         clearRoom(io, socket.socketRoomName);
+    }
+    else{
+        socket.in(socket.socketRoomName).broadcast.emit('server-send-new-message', {message: 'Your competitor not accept draw game!', owner: 'server' });
     }
 }
 
 const sendDrawRequestToCompetitor = (io, socket) => {
-    socket.in(socket.socketRoomName).broadcast.emit('competitor-want-a-draw-game', socket.socketUserName);
+    if (!socket.adapter.rooms[socket.socketRoomName]) {
+        return;
+    }
+
+    socket.in(socket.socketRoomName).broadcast.emit('competitor-want-a-draw-game');
+    socket.emit('server-send-new-message', {message: 'Your request sent!', owner: 'server' });
 }
 
-module.exports = { startGame, updateBoard, setPlayerStayIsWinner, sendDrawRequestToCompetitor, endTheGameWithoutWinner, setCompetitor }
+module.exports = { startGame, updateBoard, sendDrawRequestToCompetitor, endTheGameWithoutWinner, setCompetitorIsWinner }
