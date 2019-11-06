@@ -52,7 +52,7 @@ module.exports = (app) => {
                     code: req.query.code,
                     client_id: clientId,
                     client_secret: clientSecret,
-                    redirect_uri: 'http://localhost:3000/api/auth/login-with-google',
+                    redirect_uri: 'https://restful1612800.herokuapp.com/api/auth/login-with-google',
                     grant_type: 'authorization_code'
                 })
             }
@@ -76,7 +76,7 @@ module.exports = (app) => {
                 });
                 //return res.redirect(`http://localhost:3000?${Object.keys(userInfo).map(key => `${key}=${encodeURIComponent(userInfo[key])}`).join('&')}`)
 
-                return res.redirect('http://localhost:3000?' + query);
+                return res.redirect('https://caro1612800.herokuapp.com?' + query);
             }
             const newUser = new User({
                 name: userInfo.name,
@@ -91,11 +91,13 @@ module.exports = (app) => {
                 //return res.status(201).json({ userModified, token });
 
                 const query = querystring.stringify({
-                    "a": 1,
-                    "b": 2,
-                    "valid": "your string here"
+                    "name": userModified.name,
+                    "googleId": userModified.googleId,
+                    "email": userModified.email,
+                    "userImage": userModified.userImage,
+                    "token": token
                 });
-                return res.redirect('http://localhost:3000?' + query);
+                return res.redirect('https://caro1612800.herokuapp.com?' + query);
 
                 //res.redirect(`http://localhost:3000?${Object.keys(user).map(key => `${key}=${encodeURIComponent(user[key])}`).join('&')}`)
             });
