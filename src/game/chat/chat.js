@@ -11,7 +11,7 @@ const sendMessages = async (io, socket, message) => {
     var newMessage = new Message({
         userId: socket.socketUserId,
         name: socket.socketUserName,
-        message: message.message
+        message: message
     })
 
     var message = await newMessage.save();
