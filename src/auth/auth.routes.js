@@ -8,8 +8,8 @@ const config = require('../config/config');
 const fetch = require('node-fetch');
 const querystring = require('querystring');
 
-const clientId = '515923430857-91lh880df1vo0ssqvk91ooup3dpsg5or.apps.googleusercontent.com'
-const clientSecret = 'dFzYFYV8uxW4PwzdLJN4LjZG'
+const clientId = '85060829453-4tlg5112hr3j0e3dsqh2mpufpmcme2ml.apps.googleusercontent.com'
+const clientSecret = '4DVojJGlIhQtipv4ybEfkS4u'
 
 module.exports = (app) => {
     app.use('/auth', router);
