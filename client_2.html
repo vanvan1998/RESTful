@@ -78,15 +78,15 @@
     <script>
         $(function () {
             var socket = io('http://localhost:3000');
-            var _id = '5dba84c437a25624d802c28c';
+            var _id = '5dc2542e339c2938a8acd97f';
             var name = 'Đặng Thanh Tuấn';
             var newMessage = {
                 message: "Tuấn's message"
             }
 
-            $('#send-move').prop("disabled", true);
             $('#draw-game').prop("disabled", true);
             $('#surrender').prop("disabled", true);
+            $('#send-move').prop("disabled", true);
             $('#new-notification').hide();
 
             $('form').submit(function () {
@@ -114,7 +114,6 @@
                 var y = Math.floor(Math.random() * 20);
                 var data = { x, y }
                 socket.emit('client-send-move', data);
-                $('#send-move').prop("disabled", true);
                 return false;
             });
 
@@ -142,7 +141,7 @@
 
             socket.on('server-send-room', function (room) {
                 $('#current-room').html('');
-                $('#current-room').append($('<span>').text('Current room: ' + room));
+                $('#current-room').append($('<span>').text('Current room: ' + room.room + ' XFirst:' + room.XFirst));
             });
             socket.on('server-send-new-message', function (msg) {
                 $('#messages').append($('<li>').text(msg.message));
@@ -156,22 +155,21 @@
                 socket.emit('client-send-init-info', data);
             });
 
-            socket.on('server-init-game', function () {
+            socket.on('server-init-game-success', function () {
                 $('#draw-game').prop("disabled", false);
                 $('#surrender').prop("disabled", false);
+                $('#send-move').prop("disabled", false);
                 // Chuyển sang giao diện chơi game
             });
 
-            socket.on('server-enable-your-turn', function (turn) {
-                $('#messages').append($('<li>').text(turn));
+            socket.on('server-send-move', function (turn) {
+                $('#messages').append($('<li>').text(turn.move.x + ';' + turn.move.y + ' ' + turn.symbol ));
                 window.scrollTo(0, document.body.scrollHeight);
-                // Cho phép đánh
-                $('#send-move').prop("disabled", false);
             });
 
             socket.on('competitor-want-a-draw-game', function (data) {
                 $('#notification').html('');
-                $('#notification').append($('<span>').text('competitor want a draw game?'));
+                $('#notification').append($('<span>').text('competior want a draw game?'));
                 $('#new-notification').show();
             });
         });

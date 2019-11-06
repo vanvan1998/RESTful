@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const { sendMessages } = require('./game/chat/chat');
 const { init, createNewRoom, joinRandomRoom } = require('./game/room/room');
-const { updateBoard,sendDrawRequestToCompetitor,  endTheGameWithoutWinner, setCompetitorIsWinner } = require('./game/game');
+const { verifyMove, sendDrawRequestToCompetitor, endTheGameWithoutWinner, setCompetitorIsWinner } = require('./game/game');
 
 const PORT = process.env.PORT || config.port;
 const app = express();
@@ -53,14 +53,14 @@ const server = app.listen(PORT, err => {
     console.log('App running at port: ' + PORT);
 });
 
-app.use('/', (req, res) =>{
+app.use('/', (req, res) => {
     res.sendFile(__dirname + '/index.html')
 })
 
 const io = require('socket.io').listen(server);
 
 io.on('connection', socket => {
-    
+
     socket.emit('server-request-client-init-info');
 
     socket.on('client-send-init-info', info => init(socket, info));
@@ -71,7 +71,7 @@ io.on('connection', socket => {
 
     socket.on('client-play-now', () => joinRandomRoom(io, socket));
 
-    socket.on('client-send-move', move => updateBoard(io, socket, move));
+    socket.on('client-send-move', move => verifyMove(io, socket, move));
 
     socket.on('client-leave-room', () => socket.leaveAll());
 
@@ -80,7 +80,7 @@ io.on('connection', socket => {
     socket.on('client-ask-draw-game', () => sendDrawRequestToCompetitor(io, socket));
 
     socket.on('client-surrender', () => setCompetitorIsWinner(io, socket, 'surrender'));
-    
+
     socket.on('client-exit-game', () => setCompetitorIsWinner(io, socket, 'exit'));
 
     socket.on('client-lose-game', () => setCompetitorIsWinner(io, socket, 'lose'));
