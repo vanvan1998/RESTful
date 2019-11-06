@@ -53,10 +53,6 @@ const server = app.listen(PORT, err => {
     console.log('App running at port: ' + PORT);
 });
 
-app.use('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html')
-})
-
 const io = require('socket.io').listen(server);
 
 io.on('connection', socket => {
